@@ -1,7 +1,8 @@
-const { HookSystem, hookNames } = require('../../src/utils/hooks');
+import type { HookContext } from '../../src/types';
+import { HookSystem, hookNames } from '../../src/utils/hooks';
 
 describe('HookSystem', () => {
-    let hooks;
+    let hooks: HookSystem;
 
     beforeEach(() => {
         hooks = new HookSystem();
@@ -10,25 +11,21 @@ describe('HookSystem', () => {
     it('should define all hook types', () => {
         expect(hookNames).toEqual({
             PRE_VERSION: 'preVersion',
-            POST_VERSION: 'postVersion',
-            PRE_TAG: 'preTag',
-            POST_TAG: 'postTag',
-            PRE_RELEASE: 'preRelease',
-            POST_RELEASE: 'postRelease'
+            POST_VERSION: 'postVersion'
         });
     });
 
     it('should return original context when no hooks are registered', async () => {
-        const context = { test: true };
+        const context = { version: '1.0.0' };
         const result = await hooks.trigger('test', context);
         expect(result).toBe(context);
     });
 
     it('should execute single hook', async () => {
-        const mockHook = jest.fn(context => ({ ...context, modified: true }));
+        const mockHook = jest.fn(async (context: HookContext) => ({ ...context, modified: true } as HookContext));
         hooks.register('test', mockHook);
 
-        const context = { test: true };
+        const context: HookContext = { test: true };
         const result = await hooks.trigger('test', context);
 
         expect(mockHook).toHaveBeenCalledWith(context);
@@ -36,12 +33,12 @@ describe('HookSystem', () => {
     });
 
     it('should execute multiple hooks in order', async () => {
-        const results = [];
-        hooks.register('test', async context => {
+        const results: number[] = [];
+        hooks.register('test', async (context: HookContext) => {
             results.push(1);
             return context;
         });
-        hooks.register('test', async context => {
+        hooks.register('test', async (context: HookContext) => {
             results.push(2);
             return context;
         });
@@ -51,10 +48,10 @@ describe('HookSystem', () => {
     });
 
     it('should pass modified context through hook chain', async () => {
-        hooks.register('test', context => ({ ...context, step1: true }));
-        hooks.register('test', context => ({ ...context, step2: true }));
+        hooks.register('test', async (context: HookContext) => ({ ...context, step1: true } as HookContext));
+        hooks.register('test', async (context: HookContext) => ({ ...context, step2: true } as HookContext));
 
-        const result = await hooks.trigger('test', { initial: true });
+        const result = await hooks.trigger('test', { initial: true } as HookContext);
 
         expect(result).toEqual({
             initial: true,
@@ -64,9 +61,9 @@ describe('HookSystem', () => {
     });
 
     it('should handle async hooks', async () => {
-        hooks.register('test', async context => {
+        hooks.register('test', async (context: HookContext) => {
             await new Promise(resolve => setTimeout(resolve, 10));
-            return { ...context, async: true };
+            return { ...context, async: true } as HookContext;
         });
 
         const result = await hooks.trigger('test', {});

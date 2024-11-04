@@ -1,4 +1,4 @@
-const { CalverFormatter } = require('../../src/utils/calverFormatter');
+import { CalverFormatter } from '../../src/utils/calverFormatter';
 
 describe('CalverFormatter', () => {
     const testDate = new Date('2024-01-28');
@@ -13,7 +13,7 @@ describe('CalverFormatter', () => {
         ['0W', '05'],
         ['DD', '28'],
         ['0D', '28']
-    ])('should format %s correctly', (format, expected) => {
+    ])('should format %s correctly', (format: string, expected: string) => {
         expect(CalverFormatter.formatDate(testDate, format)).toBe(expected);
     });
 

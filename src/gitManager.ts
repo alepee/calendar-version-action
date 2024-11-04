@@ -2,6 +2,11 @@ import * as exec from '@actions/exec';
 import { Octokit } from '@octokit/rest';
 import { Context } from '@actions/github/lib/context';
 
+interface ReleaseOptions {
+    prerelease?: boolean;
+    draft?: boolean;
+}
+
 class GitManager {
     async getTags(): Promise<string[]> {
         let output = '';
@@ -22,19 +27,17 @@ class GitManager {
 
     async createRelease(
         version: string,
-        releaseType: string | undefined,
+        releaseType: string,
         octokit: Octokit,
-        context: Context
+        context: Context,
+        options: ReleaseOptions = {}
     ): Promise<void> {
-        if (!releaseType) return;
-
         await octokit.rest.repos.createRelease({
             ...context.repo,
             tag_name: version,
             name: version,
             prerelease: releaseType === 'pre',
-            draft: false,
-            generate_release_notes: true
+            draft: options.draft || false
         });
     }
 }
