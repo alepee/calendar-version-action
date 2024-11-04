@@ -1,14 +1,14 @@
 import { CalverFormatter } from './utils/calverFormatter';
 
-interface GenerateOptions {
+interface VersionContext {
     date: Date;
     tags: string[];
     cachedCount?: number;
 }
 
 class VersionGenerator {
-    private format: string;
-    private dateFormat: string;
+    readonly format: string;
+    readonly dateFormat: string;
 
     constructor(format: string, dateFormat: string) {
         this.format = format;
@@ -34,19 +34,17 @@ class VersionGenerator {
         }, -1);
     }
 
-    generate({ date, tags, cachedCount = -1 }: GenerateOptions): string {
-        const pattern = this.generatePattern(date);
+    generate(context: VersionContext): string {
+        const pattern = this.generatePattern(context.date);
         if (!pattern.includes('%MICRO%')) {
             return pattern;
         }
 
-        const micro = cachedCount !== -1
-            ? cachedCount + 1
-            : this.findHighestCount(tags, pattern) + 1;
+        const count = context.cachedCount !== undefined 
+            ? context.cachedCount + 1 
+            : this.findHighestCount(context.tags, pattern) + 1;
 
-        const [beforeMicro, afterMicro] = pattern.split('%MICRO%');
-        const version = `${beforeMicro || ''}${micro}${afterMicro || ''}`;
-        return version;
+        return pattern.replace('%MICRO%', count.toString());
     }
 }
 

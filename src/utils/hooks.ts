@@ -1,20 +1,28 @@
 type HookCallback<T> = (context: T) => Promise<T>;
 
-class HookSystem<T> {
-    private hooks: Map<string, HookCallback<T>[]>;
+interface HookContext {
+    version?: string;
+    releaseType?: string;
+    date?: Date;
+    tags?: string[];
+    cachedCount?: number;
+}
+
+class HookSystem {
+    private hooks: Map<string, HookCallback<HookContext>[]>;
 
     constructor() {
         this.hooks = new Map();
     }
 
-    register(hookName: string, callback: HookCallback<T>): void {
+    register(hookName: string, callback: HookCallback<HookContext>): void {
         if (!this.hooks.has(hookName)) {
             this.hooks.set(hookName, []);
         }
         this.hooks.get(hookName)!.push(callback);
     }
 
-    async trigger(hookName: string, context: T): Promise<T> {
+    async trigger(hookName: string, context: HookContext): Promise<HookContext> {
         if (!this.hooks.has(hookName)) return context;
 
         let currentContext = context;
