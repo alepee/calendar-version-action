@@ -1,0 +1,27 @@
+name: 'Calendar Version Generator'
+description: 'Generates version numbers using Calendar Versioning (CalVer) format as specified in https://calver.org'
+inputs:
+  format:
+    description: 'Version pattern using %NOW% and %MICRO% placeholders'
+    required: false
+    default: '%NOW%-%MICRO%'
+  dateFormat:
+    description: 'CalVer date format using YYYY, YY, 0Y, MM, 0M, WW, 0W, DD, 0D tokens (see https://calver.org)'
+    required: false
+    default: 'YYYY.0M.0D'
+  tag:
+    description: 'Whether to create a git tag'
+    required: false
+    default: 'false'
+  release:
+    description: 'Release type (latest or pre)'
+    required: false
+  github-token:
+    description: 'GitHub token for creating releases (required for automated release)'
+    required: false
+outputs:
+  version:
+    description: 'Generated version number'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
