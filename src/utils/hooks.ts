@@ -36,10 +36,6 @@ class HookSystem {
 const hookNames = {
     PRE_VERSION: 'preVersion',
     POST_VERSION: 'postVersion',
-    PRE_TAG: 'preTag',
-    POST_TAG: 'postTag',
-    PRE_RELEASE: 'preRelease',
-    POST_RELEASE: 'postRelease',
 } as const;
 
 export type HookName = typeof hookNames[keyof typeof hookNames];

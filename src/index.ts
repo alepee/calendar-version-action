@@ -1,5 +1,4 @@
 import * as core from '@actions/core';
-import * as github from '@actions/github';
 import { GitManager } from './gitManager';
 import { ConfigLoader } from './utils/configLoader';
 import { hookNames, HookSystem } from './utils/hooks';
@@ -12,10 +11,6 @@ import { VersionGenerator } from './versionGenerator';
 interface Config {
     format: string;
     dateFormat: string;
-    shouldTag: boolean;
-    releaseType?: string;
-    tag?: string;
-    release?: string;
 }
 
 interface VersionContext {
@@ -23,7 +18,6 @@ interface VersionContext {
     tags: string[];
     cachedCount: number;
     version?: string;
-    releaseType?: string;
 }
 
 async function loadConfig(): Promise<Config> {
@@ -32,8 +26,6 @@ async function loadConfig(): Promise<Config> {
     return {
         format: core.getInput('format') || fileConfig.format || '%NOW%-%COUNT%',
         dateFormat: core.getInput('dateFormat') || fileConfig.dateFormat || 'yyyy.MM.dd',
-        shouldTag: (core.getInput('tag') || fileConfig.tag || 'false').toLowerCase() === 'true',
-        releaseType: core.getInput('release') || fileConfig.release,
     };
 }
 
@@ -60,46 +52,16 @@ async function prepareVersionContext(
     return { tags, cachedCount };
 }
 
-async function handleTagging(
-    hooks: HookSystem,
-    gitManager: GitManager,
-    tagCache: TagCache,
-    version: string,
-    context: { date: Date; cachedCount: number }
-): Promise<void> {
-    await hooks.trigger(hookNames.PRE_TAG, { version });
-    await gitManager.createTag(version);
-
-    tagCache.set(gitManager.format, context.date, context.cachedCount + 1);
-    await hooks.trigger(hookNames.POST_TAG, { version });
-}
-
-async function handleRelease(
-    hooks: HookSystem,
-    gitManager: GitManager,
-    version: string,
-    releaseType: string
-): Promise<void> {
-    const token = core.getInput('github-token', { required: true });
-    const octokit = github.getOctokit(token);
-
-    await hooks.trigger(hookNames.PRE_RELEASE, { version, releaseType });
-    await gitManager.createRelease(version, releaseType, octokit, github.context);
-    await hooks.trigger(hookNames.POST_RELEASE, { version, releaseType });
-}
-
 async function run(): Promise<void> {
     const hooks = new HookSystem();
     const tagCache = new TagCache();
 
     try {
         // Load and validate configuration
-        let config: Config;
-        await ActionLogger.group('Loading Configuration', async () => {
-            config = await loadConfig();
-            ActionLogger.debug('Configuration loaded', config);
-        });
+        const config = await loadConfig();
+        ActionLogger.debug('Configuration loaded', config);
 
+        // Validate inputs
         validateInputs(config.format, config.dateFormat);
 
         // Initialize services
@@ -118,9 +80,10 @@ async function run(): Promise<void> {
             cachedCount,
         };
 
-        const version = await hooks.trigger(
+        const version = generator.generate(versionContext);
+        await hooks.trigger(
             hookNames.PRE_VERSION,
-            generator.generate(versionContext)
+            { version }
         );
 
         // Acquire lock for the version
@@ -129,16 +92,6 @@ async function run(): Promise<void> {
         }
 
         await hooks.trigger(hookNames.POST_VERSION, { version });
-
-        // Handle tagging if requested
-        if (config.shouldTag) {
-            await handleTagging(hooks, gitManager, tagCache, version, { date: now, cachedCount });
-        }
-
-        // Handle release if requested
-        if (config.releaseType) {
-            await handleRelease(hooks, gitManager, version, config.releaseType);
-        }
 
         // Set output
         core.setOutput('version', version);

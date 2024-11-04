@@ -1,7 +1,7 @@
-const { TagCache } = require('../../src/utils/tagCache');
+import { TagCache } from '../../src/utils/tagCache';
 
 describe('TagCache', () => {
-    let cache;
+    let cache: TagCache;
     const testDate = new Date('2024-01-28');
     const testPattern = '%NOW%-%COUNT%';
 

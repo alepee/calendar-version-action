@@ -1,7 +1,8 @@
-const { VersionGenerator } = require('../src/versionGenerator');
+import { VersionGenerator } from '../src/versionGenerator';
+import type { VersionContext } from '../src/types';
 
 describe('VersionGenerator', () => {
-    let generator;
+    let generator: VersionGenerator;
 
     beforeEach(() => {
         generator = new VersionGenerator('%NOW%-%MICRO%', 'YYYY.0M.0D');
@@ -82,7 +83,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: [],
                 cachedCount: -1
-            });
+            } as VersionContext);
             expect(version).toBe('2024.01.28-0');
         });
 
@@ -91,7 +92,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: ['2024.01.28-0', '2024.01.28-1'],
                 cachedCount: -1
-            });
+            } as VersionContext);
             expect(version).toBe('2024.01.28-2');
         });
 
@@ -100,7 +101,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: [],
                 cachedCount: 5
-            });
+            } as VersionContext);
             expect(version).toBe('2024.01.28-6');
         });
 
@@ -110,7 +111,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: ['2024.1.0', '2024.1.1'],
                 cachedCount: -1
-            });
+            } as VersionContext);
             expect(version).toBe('2024.1.2');
         });
 
@@ -120,7 +121,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: [],
                 cachedCount: -1
-            });
+            } as VersionContext);
             expect(version).toBe('24.01');
         });
 
@@ -130,7 +131,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: ['2024.1.0'],
                 cachedCount: -1
-            });
+            } as VersionContext);
             expect(version).toBe('2024.1.1');
         });
 
@@ -140,7 +141,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: [],
                 cachedCount: -1
-            });
+            } as VersionContext);
             expect(version).toBe('release-24.01-build-0');
         });
 
@@ -150,7 +151,7 @@ describe('VersionGenerator', () => {
                 date: new Date('2024-01-28'),
                 tags: [],
                 cachedCount: -1
-            });
+            } as VersionContext);
             expect(version).toBe('2024.01.28-0-beta');
         });
     });

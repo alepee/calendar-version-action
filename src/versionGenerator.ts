@@ -36,15 +36,11 @@ class VersionGenerator {
 
     generate(context: VersionContext): string {
         const pattern = this.generatePattern(context.date);
-        if (!pattern.includes('%MICRO%')) {
-            return pattern;
-        }
-
-        const count = context.cachedCount !== undefined 
-            ? context.cachedCount + 1 
-            : this.findHighestCount(context.tags, pattern) + 1;
-
-        return pattern.replace('%MICRO%', count.toString());
+        const currentCount = context.cachedCount !== undefined && context.cachedCount >= 0
+            ? context.cachedCount 
+            : this.findHighestCount(context.tags, pattern);
+        const nextCount = currentCount + 1;
+        return pattern.replace('%MICRO%', nextCount.toString());
     }
 }
 

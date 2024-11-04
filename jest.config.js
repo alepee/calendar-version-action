@@ -4,7 +4,7 @@ module.exports = {
     resetMocks: true,
     testEnvironment: 'node',
     collectCoverage: true,
-    collectCoverageFrom: ['src/**/*.js'],
+    collectCoverageFrom: ['src/**/*.ts'],
     coverageDirectory: 'coverage',
     coverageReporters: ['text', 'lcov'],
     coverageThreshold: {
@@ -14,5 +14,7 @@ module.exports = {
             lines: 80,
             statements: 80
         }
-    }
+    },
+    preset: 'ts-jest',
+    testMatch: ['**/__tests__/**/*.test.ts']
 };
