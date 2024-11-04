@@ -45,9 +45,6 @@ jobs:
           
       - name: Generate version
         uses: alepee/calendar-version-action@v1
-        with:
-          tag: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Complete Configuration
@@ -72,9 +69,6 @@ jobs:
         with:
           format: '%NOW%.%MICRO%'
           dateFormat: 'YYYY.0M'
-          tag: true
-          release: 'latest'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Use generated version
         run: echo "New version: ${{ steps.version.outputs.version }}"
@@ -86,11 +80,6 @@ jobs:
 |-------|-------------|----------|---------|
 | `format` | Version pattern using `%NOW%` and `%MICRO%` placeholders | No | `%NOW%-%MICRO%` |
 | `dateFormat` | CalVer date format. See [calver.org](https://calver.org/#scheme) | No | `YYYY.0M.0D` |
-| `tag` | Create Git tag | No | `false` |
-| `release` | Release type (`latest`, `pre` or empty) | No | `undefined` |
-| `github-token` | GitHub token for release creation | Yes* | - |
-
-\* Required only if `release` is set
 
 ## 📤 Outputs
 
@@ -104,8 +93,6 @@ jobs:
 
 ```yaml
 - uses: alepee/calendar-version-action@v1
-  with:
-    tag: true
 ```
 
 Output: `2024.01.28-0`
@@ -117,7 +104,6 @@ Output: `2024.01.28-0`
   with:
     dateFormat: 'YYYY'
     format: '%NOW%.1.%MICRO%'
-    tag: true
 ```
 
 Output: `2024.1.0`
@@ -129,7 +115,6 @@ Output: `2024.1.0`
   with:
     dateFormat: 'YY.0M'
     format: '%NOW%'
-    tag: true
 ```
 
 Output: `24.01`
@@ -141,7 +126,6 @@ Output: `24.01`
   with:
     dateFormat: 'YYYY.MM'
     format: '%NOW%.%MICRO%'
-    tag: true
 ```
 
 Output: `2024.1.0`
@@ -153,7 +137,6 @@ Output: `2024.1.0`
   with:
     dateFormat: 'YYYY.0W'
     format: '%NOW%.%MICRO%'
-    tag: true
 ```
 
 Output: `2024.05.0`
@@ -163,20 +146,16 @@ Output: `2024.05.0`
 ```yaml
 - uses: alepee/calendar-version-action@v1
   with:
-    format: '%NOW%-%MICRO%-beta'
-    release: 'pre'
-    tag: true
-    github-token: ${{ secrets.GITHUB_TOKEN }}
+    format: '%NOW%-b%MICRO%'
 ```
 
-Output: `2024.01.28-0-beta`
+Output: `2024.01.28-b0`
 
 ## 📝 Notes
 
 - The action requires access to the complete Git tag history to work correctly. Make sure to use `fetch-depth: 0` with `actions/checkout`.
 - The `%MICRO%` increments each time the formatted date pattern changes.
 - The placeholders `%NOW%` and `%MICRO%` can be used anywhere in the format string and in any order.
-- If using the `release` option, make sure to provide a valid `github-token`.
 
 ## ⚖️ License
 
