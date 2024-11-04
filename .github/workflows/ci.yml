@@ -28,3 +28,19 @@ jobs:
         with:
           tag: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [test, test-action]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./
+        id: version
+        with:
+          dateFormat: "YYYY.0M"
+          format: "%NOW%-%MICRO%"
+      - run: |
+          git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}"
+          git push origin ${{ steps.version.outputs.version }}
