@@ -4,11 +4,11 @@ inputs:
   format:
     description: 'Version pattern using %NOW% and %MICRO% placeholders'
     required: false
-    default: '%NOW%-%MICRO%'
+    default: '%NOW%.%MICRO%'
   dateFormat:
     description: 'CalVer date format using YYYY, YY, 0Y, MM, 0M, WW, 0W, DD, 0D tokens (see https://calver.org)'
     required: false
-    default: 'YYYY.0M.0D'
+    default: 'YYYY.0M'
   tag:
     description: 'Whether to create a git tag'
     required: false

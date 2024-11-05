@@ -151,6 +151,62 @@ Output: `2024.05.0`
 
 Output: `2024.01.28-b0`
 
+### Complete Workflow with Auto-tagging and Releases
+
+This example demonstrates a complete workflow that:
+
+1. Generates a CalVer version
+2. Creates a Git tag
+3. Pushes the tag
+4. Creates a GitHub Release
+
+```yaml
+name: Release
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Generate version
+        uses: alepee/calendar-version-action@v1
+        id: version
+        with:
+          dateFormat: "YYYY.0M"
+          format: "%NOW%.%MICRO%"
+          
+      - name: Create tag
+        run: |
+          git tag -a ${{ steps.version.outputs.version }} -m "Release ${{ steps.version.outputs.version }}"
+          git push origin ${{ steps.version.outputs.version }}
+          
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          prerelease: false
+          make_latest: true
+```
+
+This workflow will create versions like `2024.01.0` and automatically create GitHub releases with generated release notes.
+
+Note: Make sure to add the `contents: write` permission to allow the workflow to create tags and releases.
+
 ## 📝 Notes
 
 - The action requires access to the complete Git tag history to work correctly. Make sure to use `fetch-depth: 0` with `actions/checkout`.
