@@ -1,5 +1,8 @@
 name: 'Calendar Version Generator'
 description: 'Generates version numbers using Calendar Versioning (CalVer) format as specified in https://calver.org'
+branding:
+  icon: calendar
+  color: blue
 inputs:
   format:
     description: 'Version pattern using %NOW% and %MICRO% placeholders'
